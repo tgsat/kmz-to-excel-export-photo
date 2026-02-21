@@ -68,7 +68,7 @@ def parse_description(html):
         src = img.get("src")
         if src:
             fotos.append(os.path.basename(src))
-    data["FOTO"] = ", ".join(fotos)
+    data["FOTO_ORI"] = ", ".join(fotos)
 
     return data
 
@@ -152,12 +152,12 @@ for file in os.listdir(INPUT_FOLDER):
                     axis=1,
                 )
 
-                if "FOTO" in final_df.columns:
+                if "FOTO_ORI" in final_df.columns:
                     new_names = []
 
                     for idx, row in final_df.iterrows():
                         idpel = row.get("IDPELANGGAN", "")
-                        fotos = str(row["FOTO"]).split(", ")
+                        fotos = str(row["FOTO_ORI"]).split(", ")
                         saved = export_foto(temp_folder, idpel, fotos)
                         new_names.append(", ".join(saved))
 
