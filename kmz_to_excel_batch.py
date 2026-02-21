@@ -10,7 +10,9 @@ import shutil
 
 
 INPUT_FOLDER = r"C:\Users\LEGION\Downloads\xxx"
-OUTPUT_FOLDER = r"C:\Users\LEGION\Downloads\xxx"
+OUTPUT_FOLDER = r"C:\Users\LEGION\Downloads\xxx\Anton"
+
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 EXPORT_FOLDER = os.path.join(OUTPUT_FOLDER, "EXPORT ATTACHMENT")
 FOLDER_IDPEL = os.path.join(EXPORT_FOLDER, "IDPELANGGAN")
