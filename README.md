@@ -34,6 +34,12 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
+🔧 Install Library Tambahan Google API
+
+```bash
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+
 ### 4. Jalankan command contoh diterminal : 
 
 ```bash

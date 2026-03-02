@@ -1,3 +1,17 @@
+# ==================================================
+# Author By : xnnee - tgsatt.wicaksono@gmail.com
+# V1.2 2026-03-02
+
+# Deskripsi :
+# - Script untuk mengkonversi file KMZ ke Excel dengan beberapa fitur tambahan seperti:
+#   - memisah perkolom yang ada di 1 kolom grup deskripsi
+#   - Menambahkan kolom Latitude dan Longitude berdasarkan centroid geometry
+#   - Mengelompokan foto hasil rename berdasarkan IDPELANGGAN hanya foto yang memiliki IDPELANGGAN valid minimum 5 digit maximal 12 digit yang akan di rename dan disimpan di folder IDPELANGGAN, sedangkan foto lainnya akan disimpan di folder FOTO MARKER tanpa rename
+
+# - Script ini menggunakan beberapa library seperti:
+#   - geopandas untuk membaca file KML dan memproses data geospasial 
+#   - pandas untuk memanipulasi data tabular dan menulis ke file Excel
+
 import os
 import zipfile
 import tempfile
@@ -9,8 +23,8 @@ import re
 import shutil
 
 
-INPUT_FOLDER = r"C:\Users\LEGION\Downloads\xxx"
-OUTPUT_FOLDER = r"C:\Users\LEGION\Downloads\xxx\Anton"
+INPUT_FOLDER = r"x:\Users\LEGION\xxx\21022026\folder"
+OUTPUT_FOLDER = r"x:\Users\LEGION\xxx\21022026\folder\xxx_output"
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -23,7 +37,7 @@ os.makedirs(FOLDER_FOTO, exist_ok=True)
 
 
 def is_valid_idpel(val):
-    return bool(re.fullmatch(r"\d{12}", str(val)))
+    return bool(re.fullmatch(r"\d{5,12}", str(val)))
 
 
 def extract_kml(kmz):
@@ -101,17 +115,19 @@ def export_foto(temp_folder, idpel, foto_list):
             continue
 
         if is_valid_idpel(idpel):
-            count = counter.get(idpel, 0)
-            newname = f"{idpel}.jpg" if count == 0 else f"{idpel}_{count}.jpg"
-            counter[idpel] = count + 1
+
+            count = counter.get(idpel, 0) + 1
+            counter[idpel] = count
+
+            newname = f"{idpel}_photo_{count}.jpg"
             dst = os.path.join(FOLDER_IDPEL, newname)
 
-        else:
-            newname = foto + ".jpg"
-            dst = os.path.join(FOLDER_FOTO, newname)
+            shutil.copy(src, dst)
+            saved.append(newname)
 
-        shutil.copy(src, dst)
-        saved.append(newname)
+        else:
+            dst = os.path.join(FOLDER_FOTO, foto)
+            shutil.copy(src, dst)
 
     return saved
 
@@ -155,15 +171,27 @@ for file in os.listdir(INPUT_FOLDER):
                 )
 
                 if "FOTO_ORI" in final_df.columns:
-                    new_names = []
+                    photo_columns = {}
 
                     for idx, row in final_df.iterrows():
                         idpel = row.get("IDPELANGGAN", "")
                         fotos = str(row["FOTO_ORI"]).split(", ")
-                        saved = export_foto(temp_folder, idpel, fotos)
-                        new_names.append(", ".join(saved))
 
-                    final_df["FOTO_FILE"] = new_names
+                        saved = export_foto(temp_folder, idpel, fotos)
+
+                        for i, filename in enumerate(saved, start=1):
+                            col_name = f"photo_{i}"
+
+                            if col_name not in photo_columns:
+                                photo_columns[col_name] = {}
+
+                            photo_columns[col_name][idx] = filename
+
+                    for col_name, values in photo_columns.items():
+                        final_df[col_name] = final_df.index.map(values)
+
+                    if "FOTO_FILE" in final_df.columns:
+                        final_df.drop(columns=["FOTO_FILE"], inplace=True)
 
             else:
                 final_df = gdf.drop(columns="geometry")
