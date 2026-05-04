@@ -23,8 +23,8 @@ from bs4 import BeautifulSoup
 import re
 import shutil
 
-INPUT_FOLDER = r"C:\Users\LEGION\Downloads\SURYA\KMZ OLAH\OLAH\zzzz"
-OUTPUT_FOLDER = r"C:\Users\LEGION\Downloads\SURYA\KMZ OLAH\OLAH\zzzz\HASIL"
+INPUT_FOLDER = r"C:\Users\LEGION\Downloads\TESTING\ALWAN"
+OUTPUT_FOLDER = r"C:\Users\LEGION\Downloads\TESTING\ALWAN\HASIL"
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -50,7 +50,7 @@ def get_idpel_from_row(row):
 
 def safe_sheet_name(name, used):
     if not name or str(name).strip() == "":
-        base = "unmatched"
+        base = "LAYER_CRASH"
     else:
         base = re.sub(r'[\\/*?:\[\]]', "_", str(name))[:31]
 
@@ -109,7 +109,7 @@ def parse_description(html):
             if src:
                 fotos.append(os.path.basename(src))
 
-        data["FOTO_ORI"] = ", ".join(fotos)
+        data["ORIGINAL_FILENAME"] = ", ".join(fotos)
 
     except:
         pass
@@ -132,7 +132,7 @@ counter = {}
 def export_foto(temp_folder, idpel, foto_list, layer_name):
     saved = []
 
-    layer_folder = "unmatched" if not layer_name else re.sub(r'[\\/*?:\[\]]', "_", str(layer_name))
+    layer_folder = "LAYER_CRASH" if not layer_name else re.sub(r'[\\/*?:\[\]]', "_", str(layer_name))
     folder_layer_path = os.path.join(FOLDER_FOTO, layer_folder)
 
     os.makedirs(folder_layer_path, exist_ok=True)
@@ -235,12 +235,12 @@ for file in os.listdir(INPUT_FOLDER):
 
             final_df.columns = [str(col).lower() for col in final_df.columns]
 
-            if "foto_ori" in final_df.columns:
+            if "original_filename" in final_df.columns:
                 photo_columns = {}
 
                 for idx, row in final_df.iterrows():
                     idpel = get_idpel_from_row(row)
-                    fotos = str(row.get("foto_ori", "")).split(", ")
+                    fotos = str(row.get("original_filename", "")).split(", ")
 
                     saved = export_foto(temp_folder, idpel, fotos, layer_name)
 
@@ -265,4 +265,4 @@ for file in os.listdir(INPUT_FOLDER):
 
     print(" ✅ Saved:", output_excel)
 
-print("\n🔥 DONE (ANTI CRASH MODE)")
+print("\n🔥 SEMUA PROSES SELESAI")
